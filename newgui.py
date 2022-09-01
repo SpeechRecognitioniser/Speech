@@ -10,6 +10,9 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 import ctypes
+
+import main
+
 myappid = 'mycompany.myproduct.subproduct.version' # arbitrary string
 ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
 
@@ -17,6 +20,12 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(600, 674)
+
+        #Added fonts
+        QtGui.QFontDatabase.addApplicationFont(":/resources/JetBrainsMono-ExtraBold.ttf")
+        QtGui.QFontDatabase.addApplicationFont(":/resources/JetBrainsMono-Light.ttf")
+        QtGui.QFontDatabase.addApplicationFont(":/resources/JetBrainsMono-SemiBoldBold.ttf")
+
         MainWindow.setWindowIcon(QtGui.QIcon("resources/trayIcon.png"))
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
@@ -62,12 +71,6 @@ class Ui_MainWindow(object):
         self.label_2.setStyleSheet("\n"
 "font: 25 14pt \"JetBrains Mono Light\";")
         self.label_2.setObjectName("label_2")
-        self.voiceRecBrowser = QtWidgets.QTextBrowser(self.centralwidget)
-        self.voiceRecBrowser.setGeometry(QtCore.QRect(10, 0, 256, 192))
-        self.voiceRecBrowser.setStyleSheet("border-radius:22px;\n"
-"border: 0;\n"
-"background-color: rgba(223, 201, 255,20);")
-        self.voiceRecBrowser.setObjectName("voiceRecBrowser")
         self.botTalkButton = QtWidgets.QPushButton(self.centralwidget)
         self.botTalkButton.setGeometry(QtCore.QRect(369, 210, 191, 51))
         self.botTalkButton.setStyleSheet("QPushButton#botTalkButton{\n"
@@ -86,12 +89,6 @@ class Ui_MainWindow(object):
 "background-color: rgb(50, 188, 241);\n"
 "}")
         self.botTalkButton.setObjectName("botTalkButton")
-        self.botTalkBrowser = QtWidgets.QTextBrowser(self.centralwidget)
-        self.botTalkBrowser.setGeometry(QtCore.QRect(334, 0, 256, 192))
-        self.botTalkBrowser.setStyleSheet("border-radius:22px;\n"
-"border: 10;\n"
-"background-color: rgba(223, 201, 255,20);")
-        self.botTalkBrowser.setObjectName("botTalkBrowser")
         self.fileRecognizeButton = QtWidgets.QPushButton(self.centralwidget)
         self.fileRecognizeButton.setGeometry(QtCore.QRect(149, 550, 301, 51))
         self.fileRecognizeButton.setStyleSheet("QPushButton#fileRecognizeButton{\n"
@@ -110,25 +107,43 @@ class Ui_MainWindow(object):
 "background-color: rgb(50, 188, 241);\n"
 "}")
         self.fileRecognizeButton.setObjectName("fileRecognizeButton")
-        self.fileBrowser = QtWidgets.QTextBrowser(self.centralwidget)
-        self.fileBrowser.setGeometry(QtCore.QRect(172, 340, 256, 192))
-        self.fileBrowser.setStyleSheet("border-radius:22px;\n"
-"border: 10;\n"
-"background-color: rgba(223, 201, 255,20);")
-        self.fileBrowser.setObjectName("fileBrowser")
+
         self.label_3 = QtWidgets.QLabel(self.centralwidget)
         self.label_3.setGeometry(QtCore.QRect(174, 320, 251, 16))
         self.label_3.setStyleSheet("color: rgb(217, 252, 248);\n"
 "font: 63 7pt \"JetBrains Mono SemiBold\";")
         self.label_3.setObjectName("label_3")
+        self.voiceRecText = QtWidgets.QPlainTextEdit(self.centralwidget)
+        self.voiceRecText.setGeometry(QtCore.QRect(10, 0, 256, 192))
+        self.voiceRecText.setStyleSheet("border-radius:22px;\n"
+                                        "border: 0;\n"
+                                        "background-color: rgba(223, 201, 255,20);")
+        self.voiceRecText.setObjectName("voiceRecText")
+        self.botTalkText = QtWidgets.QPlainTextEdit(self.centralwidget)
+        self.botTalkText.setGeometry(QtCore.QRect(334, 0, 256, 192))
+        self.botTalkText.setStyleSheet("border-radius:22px;\n"
+                                       "border: 0;\n"
+                                       "background-color: rgba(223, 201, 255,20);")
+        self.botTalkText.setObjectName("botTalkText")
+        self.fileText = QtWidgets.QPlainTextEdit(self.centralwidget)
+        self.fileText.setGeometry(QtCore.QRect(172, 340, 256, 192))
+        self.fileText.setStyleSheet("border-radius:22px;\n"
+                                    "border: 0;\n"
+                                    "background-color: rgba(223, 201, 255,20);")
+        self.fileText.setObjectName("fileText")
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 600, 26))
         self.menubar.setObjectName("menubar")
         MainWindow.setMenuBar(self.menubar)
 
+        self.voiceRecButton.clicked.connect(lambda: self.click())
+
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
+
+    def click(self):
+        main.bot_talk("hi jojo what is your name")
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
@@ -136,23 +151,8 @@ class Ui_MainWindow(object):
         self.voiceRecButton.setText(_translate("MainWindow", "Voice recognition"))
         self.label.setText(_translate("MainWindow", "VRec"))
         self.label_2.setText(_translate("MainWindow", "1.0"))
-        self.voiceRecBrowser.setHtml(_translate("MainWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
-"p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:7.8pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">hello</p></body></html>"))
         self.botTalkButton.setText(_translate("MainWindow", "Make it say something!"))
-        self.botTalkBrowser.setHtml(_translate("MainWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
-"p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:7.8pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">hello</p></body></html>"))
         self.fileRecognizeButton.setText(_translate("MainWindow", "Choose file to recognize voice from"))
-        self.fileBrowser.setHtml(_translate("MainWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
-"p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:7.8pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">hello</p></body></html>"))
         self.label_3.setText(_translate("MainWindow", "Voice recognized from file is here:"))
 
 
@@ -164,6 +164,7 @@ if __name__ == "__main__":
 
     MainWindow.setWindowTitle("VRec")
     ui = Ui_MainWindow()
+
     ui.setupUi(MainWindow)
     MainWindow.show()
     sys.exit(app.exec_())
