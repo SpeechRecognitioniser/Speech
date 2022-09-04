@@ -32,7 +32,7 @@ dict = {
         'date': ("какая сегодня дата", "какое сегодня число", "сегодняшняя дата", "назови дату"),
         'wiki': ("что такое", "что есть"),
         'trans': ("перевод", "переведи", "переведи фразу"),
-        'weather': ("какая погода город", "погода город", "погода"),
+        'weather': ("какая погода город", "погода город", "погода", "какая сейчас погода", "какая сейчас погода город"),
         'stop': ("стоп", "остановка", "остановись", "хватит")
     }
 }
@@ -147,8 +147,6 @@ def do_command(cmd, text_speech, same):
         phrase = speech()
         do_translate(phrase)
     elif cmd == 'weather' and same >= 50:     #парсер инфы с сайта погоды
-        #html = get_html(text_speech)
-        #do_parse(html)
         get_html(text_speech)
     elif cmd == 'stop' and same >= 50:
         do_smth = 0
@@ -181,9 +179,10 @@ def get_html(text_speech):
     fragment1 = 'погода'
     fragment2 = 'какая'
     fragment3 = 'город'
+    fragment4 = 'сейчас'
     new_words = []
     for word in words:
-        if fragment1 not in word and fragment2 not in word and fragment3 not in word:
+        if fragment1 not in word and fragment2 not in word and fragment3 not in word and fragment4 not in word:
             new_words.append(word)
 
     URL = 'https://yandex.by/pogoda/'
@@ -202,6 +201,12 @@ def get_html(text_speech):
     except AttributeError:
         bot_talk("Яндекс защищает свои данные. Молодцы суки!")
         user_speech()
+
+    """
+    except http.client.InvalidURL:
+        bot_talk("Некорректная команда")
+        user_speech()
+    """
 
 
 #парсер погоды
