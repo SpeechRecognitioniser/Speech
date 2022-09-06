@@ -4,7 +4,6 @@ import ctypes
 from PySide2 import *
 from newgui import *
 
-#from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 
 from functions import *
@@ -27,6 +26,7 @@ class MainWindow(QMainWindow):
         self.setWindowIcon(QIcon("resources/trayIcon.png"))
         self.ui.voiceRecText.setReadOnly(True)
         self.ui.fileText.setReadOnly(True)
+        self.setFixedSize(600, 674)
 
         #Added fonts
         QFontDatabase.addApplicationFont(":/resources/JetBrainsMono-ExtraBold.ttf")
@@ -39,11 +39,21 @@ class MainWindow(QMainWindow):
         self.threadpoolSpeech = QThreadPool()
         self.ui.voiceRecButton.clicked.connect(lambda: self.speech_test())
 
+        self.ui.fileRecognizeButton.clicked.connect(lambda: self.showOpenFileDialog())
+
+    def showOpenFileDialog(self):
+        self.ui.fileText.clear()
+        fileName, filter = QFileDialog.getOpenFileName(self, 'Open file',
+                                                       'some/default/path/', 'wav files (*.wav)')
+
+        text = from_audio_to_text(fileName)
+        self.ui.fileText.insertPlainText(text)
+
 
     def button_control(self, access):
         self.ui.botTalkButton.setDisabled(access)
         self.ui.voiceRecButton.setDisabled(access)
-        self.ui.voiceRecText.setDisabled(access)
+        self.ui.fileRecognizeButton.setDisabled(access)
 
 
     def bot_test(self):
@@ -67,7 +77,7 @@ if __name__ == "__main__":
         @pyqtSlot()
         def run(self):
             window.button_control(True)
-            bot_talk(str(window.ui.botTalkText.toPlainText()))
+            make_it_say(str(window.ui.botTalkText.toPlainText()))
             window.button_control(False)
 
 
@@ -77,6 +87,7 @@ if __name__ == "__main__":
         def run(self):
             window.button_control(True)
             user_speech()
+            window.ui.voiceRecText.clear()
             window.button_control(False)
 
 
