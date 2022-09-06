@@ -1,17 +1,12 @@
-# работа с системой
-import os
-import sys
-
 import datetime
 import webbrowser     # работа с браузером
 
 import pyttsx3     # преобразование текста в речь
 import speech_recognition as speech_rec     # модули для распознавания речи
-import pyaudio     # считывать речь с микрофона
+import pyaudio
 
 #нечеткое сравнение строк
 from fuzzywuzzy import fuzz
-from fuzzywuzzy import process
 
 from googletrans import Translator     # переводчик
 
@@ -45,9 +40,21 @@ for index, name in enumerate(sr.Microphone.list_microphone_names()):
 """
 
 
+window = None
+
+
+def def_window(win):
+    global window
+    window = win
+
+
+def write_text(text):
+    window.ui.voiceRecText.insertPlainText(text + '\n')
+
+
 # речь голосового помощника
 def bot_talk(words):
-    print(words)
+    write_text(words)
     engine = pyttsx3.init()
     engine.say(words)
     engine.runAndWait()
@@ -58,14 +65,14 @@ def user_speech():
     r = speech_rec.Recognizer()
     while True:
         with speech_rec.Microphone() as source:
-            print("Скажите что-нибудь:")
+            write_text("Скажите что-нибудь:")
             #r.pause_threshold = 1     # пауза в 1 секунду
             r.adjust_for_ambient_noise(source, duration=1)     # удаление лишних шумов с фона 1 секунду
             voice = r.listen(source)     # прослушивание микрофона
 
         try:
             text_speech = r.recognize_google(voice, language="ru-RU").lower()    # перевод голоса в текст
-            print("Вы сказали: " + text_speech)
+            write_text("Вы сказали: " + text_speech)
 
             cmd = text_speech.strip()
             cmd = find_command(text_speech)
@@ -86,14 +93,14 @@ def speech():
     r = speech_rec.Recognizer()
 
     with speech_rec.Microphone() as source:
-        print("Скажите что-нибудь:")
+        write_text("Скажите что-нибудь:")
         # r.pause_threshold = 1     # пауза в 1 секунду
         r.adjust_for_ambient_noise(source, duration=1)  # удаление лишних шумов с фона 1 секунду
         voice = r.listen(source)  # прослушивание микрофона
 
     try:
         t_speech = r.recognize_google(voice, language="ru-RU").lower()  # перевод голоса в текст
-        print("Вы сказали: " + t_speech)
+        write_text("Вы сказали: " + t_speech)
 
     except speech_rec.UnknownValueError:
         bot_talk("Говорите чётче")
@@ -232,6 +239,6 @@ def from_audio_to_text(file):
     print(text_file)
 
 
-bot_talk("Здравствуй хозяин")
-user_speech()
+#bot_talk("Здравствуй хозяин")
+#user_speech()
 #from_audio_to_text('C:/Users/olegd/Downloads/Nikolai_Alekseyev_Helsinki_forum.wav')
