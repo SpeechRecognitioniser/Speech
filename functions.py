@@ -5,6 +5,8 @@ import pyttsx3     # преобразование текста в речь
 import speech_recognition as speech_rec     # модули для распознавания речи
 import pyaudio
 
+import threading
+
 #нечеткое сравнение строк
 from fuzzywuzzy import fuzz
 
@@ -42,7 +44,6 @@ for index, name in enumerate(sr.Microphone.list_microphone_names()):
 
 window = None
 
-
 def def_window(win):
     global window
     window = win
@@ -50,6 +51,12 @@ def def_window(win):
 
 def write_text(text):
     window.ui.voiceRecText.insertPlainText(text + '\n')
+
+
+def make_it_say(words):
+    engine = pyttsx3.init()
+    engine.say(words)
+    engine.runAndWait()
 
 
 # речь голосового помощника
@@ -66,7 +73,6 @@ def user_speech():
     while True:
         with speech_rec.Microphone() as source:
             write_text("Скажите что-нибудь:")
-            #r.pause_threshold = 1     # пауза в 1 секунду
             r.adjust_for_ambient_noise(source, duration=1)     # удаление лишних шумов с фона 1 секунду
             voice = r.listen(source)     # прослушивание микрофона
 
@@ -82,10 +88,14 @@ def user_speech():
                 break
 
         except speech_rec.UnknownValueError:
-            bot_talk("Говорите чётче")
+            tBot = threading.Thread(target=bot_talk("Говорите чётче"))
+            tBot.start()
+            tBot.join()
 
         except speech_rec.RequestError:
-            bot_talk("Неизвестная ошибка. Проверьте подключение")
+            t1 = threading.Thread(target=bot_talk("Неизвестная ошибка. Проверьте подключение"))
+            t1.start()
+            t1.join()
 
 
 #та же фунуция, что и user_speech, но только для считывания речи
@@ -94,7 +104,6 @@ def speech():
 
     with speech_rec.Microphone() as source:
         write_text("Скажите что-нибудь:")
-        # r.pause_threshold = 1     # пауза в 1 секунду
         r.adjust_for_ambient_noise(source, duration=1)  # удаление лишних шумов с фона 1 секунду
         voice = r.listen(source)  # прослушивание микрофона
 
@@ -103,11 +112,15 @@ def speech():
         write_text("Вы сказали: " + t_speech)
 
     except speech_rec.UnknownValueError:
-        bot_talk("Говорите чётче")
+        tBot = threading.Thread(target=bot_talk("Говорите чётче"))
+        tBot.start()
+        tBot.join()
         t_speech = speech()
 
     except speech_rec.RequestError:
-        bot_talk("Неизвестная ошибка. Проверьте подключение")
+        t1 = threading.Thread(target=bot_talk("Неизвестная ошибка. Проверьте подключение"))
+        t1.start()
+        t1.join()
         t_speech = speech()
 
     return t_speech
@@ -133,12 +146,19 @@ def do_command(cmd, text_speech, same):
 
     if cmd == 'browser' and same >= 50:
         webbrowser.open('https://www.google.com/')
+
     elif cmd == 'time' and same >= 50:
         now = datetime.datetime.now()
-        bot_talk("Сейчас " + str(now.hour) + ":" + str(now.minute))
+        tBot = threading.Thread(target=bot_talk("Сейчас " + str(now.hour) + ":" + str(now.minute)))
+        tBot.start()
+        tBot.join()
+
     elif cmd == 'date' and same >= 50:
         now_date = datetime.date.today()
-        bot_talk("Сейчас " + str(now_date))
+        tBot = threading.Thread(target=bot_talk("Сейчас " + str(now_date)))
+        tBot.start()
+        tBot.join()
+
     elif cmd == 'wiki' and same >= 50:     # поиск в википедии
         words = text_speech.split(' ')
         fragment1 = 'что'
@@ -149,23 +169,39 @@ def do_command(cmd, text_speech, same):
             if fragment1 not in word and fragment2 not in word and fragment3 not in word:
                 new_words.append(word)
         webbrowser.open_new_tab('https://ru.wikipedia.org/wiki/' + ' '.join(new_words))
+
     elif cmd == 'trans' and same >= 50:     #переводчик
-        bot_talk("Скажите фразу для перевода")
+        tBot = threading.Thread(target=bot_talk("Скажите фразу для перевода"))
+        tBot.start()
+        tBot.join()
+
         phrase = speech()
-        do_translate(phrase)
+        t1 = threading.Thread(target=do_translate(phrase))
+        t1.start()
+        t1.join()
+
     elif cmd == 'weather' and same >= 50:     #парсер инфы с сайта погоды
-        get_html(text_speech)
+        #get_html(text_speech)
+        t1 = threading.Thread(target=get_html(text_speech))
+        t1.start()
+        t1.join()
+
     elif cmd == 'stop' and same >= 50:
         do_smth = 0
+
     else:
-        bot_talk("Команда не распознана")
+        t1 = threading.Thread(target=bot_talk("Команда не распознана"))
+        t1.start()
+        t1.join()
 
     return do_smth
 
 
 # переводчик
 def do_translate(phrase):
-    bot_talk("На какой язык желаете перевести?")
+    t1 = threading.Thread(target=bot_talk("На какой язык желаете перевести?"))
+    t1.start()
+    t1.join()
     lang = speech()
     translator = Translator()
     result_lang = translator.translate(lang, src='russian', dest='english')
@@ -176,7 +212,9 @@ def do_translate(phrase):
         result = translator.translate(phrase, src='russian', dest=lang)
         bot_talk(result.text)
     except ValueError:
-        bot_talk("Ошибка, назовите язык перевода")
+        t1 = threading.Thread(target=bot_talk("Ошибка, назовите язык перевода"))
+        t1.start()
+        t1.join()
         do_translate(phrase)
 
 
@@ -202,18 +240,16 @@ def get_html(text_speech):
         do_parse(response.read())
 
     except urllib.error.HTTPError:
-        bot_talk("Некорректная команда")
+        t1 = threading.Thread(target=bot_talk("Некорректная команда"))
+        t1.start()
+        t1.join()
         user_speech()
 
     except AttributeError:
-        bot_talk("Яндекс защищает свои данные. Молодцы суки!")
+        t1 = threading.Thread(target=bot_talk("Яндекс защищает свои данные. Молодцы суки!"))
+        t1.start()
+        t1.join()
         user_speech()
-
-    """
-    except http.client.InvalidURL:
-        bot_talk("Некорректная команда")
-        user_speech()
-    """
 
 
 #парсер погоды
@@ -224,7 +260,9 @@ def do_parse(html):
                                                                                                           'ignore')
     temp += ' ' + soup.find('div', class_='link__condition day-anchor i-bem').get_text().encode('utf-8').decode('utf-8',
                                                                                                           'ignore')
-    bot_talk(temp)
+    t1 = threading.Thread(target=bot_talk(temp))
+    t1.start()
+    t1.join()
 
 
 # перевод аудио в текст из файла
@@ -236,9 +274,4 @@ def from_audio_to_text(file):
         audio_content = rec.record(audio_file, duration=20)     # duration это длительность прослушиваемого фрагмента
 
     text_file = rec.recognize_google(audio_content).lower()
-    print(text_file)
-
-
-#bot_talk("Здравствуй хозяин")
-#user_speech()
-#from_audio_to_text('C:/Users/olegd/Downloads/Nikolai_Alekseyev_Helsinki_forum.wav')
+    return text_file
